@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 import re
 from enum import Enum
 
@@ -39,8 +40,10 @@ class LatencyDist:
         self.percentile.append(percentile)
         self.time.append(time)
         self.size = self.size+1
-    def plot(self) -> None:
-        plt.figure(figsize=(12,8))
+
+    def plot(self, name, size=(12,8)) -> None:
+        plt.figure(figsize=size)
+        plt.title(name)
         plt.xlabel("Response Time in ms")
         plt.ylabel("Percentile")
         # plt.xticks(np.arange(0, max(self.latency), 10))
@@ -48,21 +51,22 @@ class LatencyDist:
         # plt.grid(True)
         plt.title("Latency Distribution")
         plt.plot(self.time, self.percentile)
-        plt.savefig("latencydist.png")
+        plt.savefig(name+".png")
 
-class PercentileSpectrum:
-    def __init__(self) -> None:
-        self.value = []
-        self.percentile = []
-        self.count = []
-        self.onebyone = []
-        self.size = 0
-    def add(self, percentile, value, count, onebyone) -> None:
-        self.percentile.append(percentile)
-        self.value.append(value)
-        self.count.append(count)
-        self.onebyone.append(onebyone)
-        self.size = self.size+1
+# class PercentileSpectrum:
+#     def __init__(self) -> None:
+#         self.value = []
+#         self.percentile = []
+#         self.count = []
+#         self.onebyone = []
+#         self.size = 0
+#     def add(self, percentile, value, count, onebyone) -> None:
+#         self.percentile.append(percentile)
+#         self.value.append(value)
+#         self.count.append(count)
+#         self.onebyone.append(onebyone)
+#         self.size = self.size+1
+
 
 if __name__ == "__main__":
     with open(FILE_NAME, 'r') as f:
@@ -70,9 +74,8 @@ if __name__ == "__main__":
         avg_latency = 0
         std_dev = 0
         nn_percentile = 0
-        
-        latency_dist = LatencyDist()
-        percentile_spect = PercentileSpectrum()
+
+        # percentile_spect = PercentileSpectrum()
         for line in f:
             line = line.strip()
             if re.match(Search.LatencyOverview.value, line) and not re.match(Search.LatencyDistribution.value, line):
@@ -83,6 +86,7 @@ if __name__ == "__main__":
                 # plot.addOverview(avg_latency, std_dev, nn_percentile)
             if re.match(Search.LatencyDistribution.value, line):
                 # loop until the next line is a space
+                latency_dist = LatencyDist()
                 while True:
                     tokens = f.readline().strip().split()
                     if len(tokens) == 0:
@@ -96,9 +100,13 @@ if __name__ == "__main__":
                     else:
                         t = float(re.sub(Search.Time.value, "", t))
                     latency_dist.add(p, t)
-                latency_dist.plot()
-            
+                name_tokens = line.strip().split()
+                name = name_tokens[0] + " " + name_tokens[1]
+                latency_dist.plot(name)
+
             if re.match(Search.Detailed_Percentile.value, line):
+       
+                latency_dist = LatencyDist()
                 next(f)
                 next(f)
                 while True:
@@ -108,12 +116,9 @@ if __name__ == "__main__":
 
                     v = float(tokens[0])
                     p = float(tokens[1])
-                    c = float(tokens[2])
-                    o = float(tokens[3])
-                    percentile_spect.add(p,v,c,o)
-            
-        print(percentile_spect.percentile)
-        print(percentile_spect.count)
-        print(percentile_spect.onebyone)
-        print(percentile_spect.value)
-
+                    # c = float(tokens[2])
+                    # o = float(tokens[3])
+                    latency_dist.add(p, v)
+                name_tokens = line.strip().split()
+                name = name_tokens[0] + " " + name_tokens[1]
+                latency_dist.plot(name, size=(16,8))
