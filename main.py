@@ -41,13 +41,13 @@ class LatencyDist:
         self.size = self.size+1
     def plot(self) -> None:
         plt.figure(figsize=(12,8))
-        plt.xlabel("Percentile")
-        plt.ylabel("Response Time in ms")
+        plt.xlabel("Response Time in ms")
+        plt.ylabel("Percentile")
         # plt.xticks(np.arange(0, max(self.latency), 10))
-        plt.yticks(np.arange(0, max(self.time), step=500))
+        plt.xticks(np.arange(0, max(self.time), step=500))
         # plt.grid(True)
         plt.title("Latency Distribution")
-        plt.plot(self.percentile, self.time)
+        plt.plot(self.time, self.percentile)
         plt.savefig("latencydist.png")
 
 class PercentileSpectrum:
