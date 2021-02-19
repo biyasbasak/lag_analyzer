@@ -2,11 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import re
+import argparse
 from enum import Enum
 
 
 plt.style.use("ggplot")
 FILE_NAME = "test_data/test1.txt"
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--format", default="png",
+                    help="Output format of the chart")
+args = parser.parse_args()
 
 
 class Search(Enum):
@@ -41,17 +48,17 @@ class LatencyDist:
         self.time.append(time)
         self.size = self.size+1
 
-    def plot(self, name, size=(12,8)) -> None:
+    def plot(self, name, output_format, size=(12, 8)) -> None:
         plt.figure(figsize=size)
         plt.title(name)
-        plt.xlabel("Response Time in ms")
-        plt.ylabel("Percentile")
+        plt.xlabel("Response Time in ms", size=20)
+        plt.ylabel("Percentile", size=20)
         # plt.xticks(np.arange(0, max(self.latency), 10))
         plt.xticks(np.arange(0, max(self.time), step=500))
         # plt.grid(True)
-        plt.title("Latency Distribution")
+        plt.title(name, size=20)
         plt.plot(self.time, self.percentile)
-        plt.savefig(name+".png")
+        plt.savefig(name+"."+output_format)
 
 # class PercentileSpectrum:
 #     def __init__(self) -> None:
@@ -69,6 +76,7 @@ class LatencyDist:
 
 
 if __name__ == "__main__":
+
     with open(FILE_NAME, 'r') as f:
         i = 0
         avg_latency = 0
@@ -102,10 +110,10 @@ if __name__ == "__main__":
                     latency_dist.add(p, t)
                 name_tokens = line.strip().split()
                 name = name_tokens[0] + " " + name_tokens[1]
-                latency_dist.plot(name)
+                latency_dist.plot(name, args.format)
 
             if re.match(Search.Detailed_Percentile.value, line):
-       
+
                 latency_dist = LatencyDist()
                 next(f)
                 next(f)
@@ -121,4 +129,4 @@ if __name__ == "__main__":
                     latency_dist.add(p, v)
                 name_tokens = line.strip().split()
                 name = name_tokens[0] + " " + name_tokens[1]
-                latency_dist.plot(name, size=(16,8))
+                latency_dist.plot(name, args.format, size=(16, 8))
