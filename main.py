@@ -14,18 +14,19 @@ class Search(Enum):
     Time = re.compile("[a-z]")
     TimeInSec = re.compile("[0-9]+s")
     ReqRate = re.compile("^Req/Sec")
+    Detailed_Percentile = re.compile("^Detailed.*Percentile.*spectrum")
 
 
-def plotLatencyOverview(avg, std, nn):
-    plt.figure(figsize=(10, 10))
-    plt.xlabel("Percentile")
-    plt.ylabel("Response Time in ms")
-    # plt.xticks(np.arange(0, max(self.latency), 10))
-    plt.yticks(np.arange(0, max(self.time), step=500))
-    # plt.grid(True)
-    plt.title("Latency Distribution")
-    plt.plot(self.latency, self.time)
-    plt.savefig("overview.png")
+# def plotLatencyOverview(avg, std, nn):
+#     plt.figure(figsize=(10, 10))
+#     plt.xlabel("Percentile")
+#     plt.ylabel("Response Time in ms")
+#     # plt.xticks(np.arange(0, max(self.latency), 10))
+#     plt.yticks(np.arange(0, max(self.time), step=500))
+#     # plt.grid(True)
+#     plt.title("Latency Distribution")
+#     plt.plot(self.latency, self.time)
+#     plt.savefig("overview.png")
 
 
 class LatencyDist:
@@ -49,6 +50,19 @@ class LatencyDist:
         plt.plot(self.percentile, self.time)
         plt.savefig("latencydist.png")
 
+class PercentileSpectrum:
+    def __init__(self) -> None:
+        self.value = []
+        self.percentile = []
+        self.count = []
+        self.onebyone = []
+        self.size = 0
+    def add(self, percentile, value, count, onebyone) -> None:
+        self.percentile.append(percentile)
+        self.value.append(value)
+        self.count.append(count)
+        self.onebyone.append(onebyone)
+        self.size = self.size+1
 
 if __name__ == "__main__":
     with open(FILE_NAME, 'r') as f:
@@ -58,7 +72,7 @@ if __name__ == "__main__":
         nn_percentile = 0
         
         latency_dist = LatencyDist()
-        
+        percentile_spect = PercentileSpectrum()
         for line in f:
             line = line.strip()
             if re.match(Search.LatencyOverview.value, line) and not re.match(Search.LatencyDistribution.value, line):
@@ -73,14 +87,33 @@ if __name__ == "__main__":
                     tokens = f.readline().strip().split()
                     if len(tokens) == 0:
                         break
-                    l = tokens[0]
+                    p = tokens[0]
                     t = tokens[-1]
-                    l = l.strip("%")
+                    p = p.strip("%")
                     if re.findall(Search.TimeInSec.value, t):
                         t = re.sub(Search.Time.value, "", t)
                         t = float(t) * 1000
                     else:
                         t = float(re.sub(Search.Time.value, "", t))
-                    latency_dist.add(l, t)
-                
+                    latency_dist.add(p, t)
                 latency_dist.plot()
+            
+            if re.match(Search.Detailed_Percentile.value, line):
+                next(f)
+                next(f)
+                while True:
+                    tokens = f.readline().strip().split()
+                    if re.match(re.compile("#"), tokens[0]):
+                        break
+
+                    v = float(tokens[0])
+                    p = float(tokens[1])
+                    c = float(tokens[2])
+                    o = float(tokens[3])
+                    percentile_spect.add(p,v,c,o)
+            
+        print(percentile_spect.percentile)
+        print(percentile_spect.count)
+        print(percentile_spect.onebyone)
+        print(percentile_spect.value)
+
