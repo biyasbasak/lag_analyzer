@@ -18,6 +18,7 @@ args = parser.parse_args()
 
 def plot_pdf(distributions, name, output_format="png") -> None:
     plt.figure(figsize=(20,8))
+    distributions = [np.log(val) for val in distributions]
     plt.title(name)
     plt.xlabel("Response Time in ms", size=20)
     plt.title(name, size=20)
@@ -50,7 +51,6 @@ if __name__ == "__main__":
                         break
                     value = float(tokens[-1])
                     latency_values.append(value)
-            latency_values = np.log(latency_values)
             distributions.append(latency_values)
 
     plot_pdf(distributions, name="PDF", output_format=args.format)
