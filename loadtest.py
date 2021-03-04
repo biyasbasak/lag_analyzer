@@ -1,3 +1,4 @@
+from os import major
 import matplotlib.pyplot as plt
 import re
 import argparse
@@ -20,6 +21,7 @@ def plot_pdf(distributions, name, output_format="png") -> None:
     plt.figure(figsize=(20,8))
     distributions = [np.log(val) for val in distributions]
     plt.title(name)
+    plt.tick_params(axis="both", labelsize=15)
     plt.xlabel("Response Time in ms", size=20)
     plt.title(name, size=20)
     plt.hist(distributions, bins='auto', density=True)
@@ -29,11 +31,12 @@ def plot_pdf(distributions, name, output_format="png") -> None:
 def plot_cdf(distributions, name, output_format="png") -> None:
     plt.figure(figsize=(20,8))
     plt.title(name)
+    plt.tick_params(axis="both", labelsize=15)
     plt.xlabel("Response Time in ms", size=20)
     plt.ylabel("Percentile", size=20)
     plt.title(name, size=20)
     plt.hist(distributions, bins='auto', cumulative=True,
-             density=True, histtype='step')
+             density=True, histtype='step', linewidth=2.0)
     plt.savefig(name+"."+output_format)
 
 
