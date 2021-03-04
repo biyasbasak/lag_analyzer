@@ -19,24 +19,29 @@ args = parser.parse_args()
 
 def plot_pdf(distributions, name, output_format="png") -> None:
     plt.figure(figsize=(20,8))
-    distributions = [np.log(val) for val in distributions]
-    plt.title(name)
-    plt.tick_params(axis="both", labelsize=15)
-    plt.xlabel("Response Time in ms", size=20)
-    plt.title(name, size=20)
-    plt.hist(distributions, bins='auto', density=True)
+    # log_normalized_distributions = [np.log(val) for val in distributions]
+    for dist in distributions:
+        plt.title(name)
+        plt.tick_params(axis="both", labelsize=15)
+        plt.xlabel("Response Time in ms", size=20)
+        plt.xticks(ticks = np.arange(0, max(dist), 10000))
+        plt.title(name, size=20)
+        plt.hist(dist, bins='auto', density=True)
+    
     plt.savefig(name+"."+output_format)
 
 
 def plot_cdf(distributions, name, output_format="png") -> None:
     plt.figure(figsize=(20,8))
-    plt.title(name)
-    plt.tick_params(axis="both", labelsize=15)
-    plt.xlabel("Response Time in ms", size=20)
-    plt.ylabel("Percentile", size=20)
-    plt.title(name, size=20)
-    plt.hist(distributions, bins='auto', cumulative=True,
-             density=True, histtype='step', linewidth=2.0)
+    for dist in distributions:
+        plt.title(name)
+        plt.tick_params(axis="both", labelsize=15)
+        plt.xlabel("Response Time in ms", size=20)
+        plt.xticks(ticks = np.arange(0, max(dist), 10000))
+        plt.ylabel("Percentile", size=20)
+        plt.title(name, size=20)
+        plt.hist(dist, bins='auto', cumulative=True,
+                 density=True, histtype='step', linewidth=2.0)
     plt.savefig(name+"."+output_format)
 
 
