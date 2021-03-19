@@ -7,7 +7,7 @@ import numpy as np
 plt.style.use("ggplot")
 
 # pass one or more log files
-FILE_NAME = ["loadtest_data/sample.log"]
+FILE_NAME = ["3.txt"]
 
 
 parser = argparse.ArgumentParser()
@@ -24,7 +24,7 @@ def plot_pdf(distributions, name, output_format="png") -> None:
         plt.title(name)
         plt.tick_params(axis="both", labelsize=15)
         plt.xlabel("Response Time in ms", size=20)
-        plt.xticks(ticks = np.arange(0, max(dist), 10000))
+        plt.xticks(ticks = np.arange(0, max(dist), 10))
         plt.title(name, size=20)
         plt.hist(dist, bins='auto', density=True)
     
@@ -37,7 +37,7 @@ def plot_cdf(distributions, name, output_format="png") -> None:
         plt.title(name)
         plt.tick_params(axis="both", labelsize=15)
         plt.xlabel("Response Time in ms", size=20)
-        plt.xticks(ticks = np.arange(0, max(dist), 10000))
+        plt.xticks(ticks = np.arange(0, max(dist), 10))
         plt.ylabel("Percentile", size=20)
         plt.title(name, size=20)
         plt.hist(dist, bins='auto', cumulative=True,
